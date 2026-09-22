@@ -335,7 +335,7 @@ local function ExecuteProtectedScript()
 	end
 
 	local success, result = pcall(function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/GUIZNXHub/SON-ALL-SCRIPT-TRASHSS/refs/heads/main/Weekly%20Code%20Sniper.txt"))()
+		loadstring("https://raw.githubusercontent.com/GUIZNXHub/SON-ALL-SCRIPT-TRASHSS/refs/heads/main/Weekly%20Code%20Sniper%20(1).txt"))()
 	end)
 
 	if not success then
