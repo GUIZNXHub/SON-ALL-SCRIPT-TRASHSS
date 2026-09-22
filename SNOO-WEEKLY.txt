@@ -1,0 +1,392 @@
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+
+local Player = Players.LocalPlayer
+
+local DISCORD_LINK = "https://discord.gg/SnyQSwPReb"
+local ENDPOINT = "https://snoo-guiznxkeys2.lovable.app/api/public/validate"
+
+local Request = http_request or request or (syn and syn.request) or (http and http.request)
+
+local PlayerGui = Player:WaitForChild("PlayerGui")
+local OldUI = PlayerGui:FindFirstChild("SnooKeySystem")
+
+if OldUI then
+	OldUI:Destroy()
+end
+
+local function New(className, properties, parent)
+	local object = Instance.new(className)
+
+	for property, value in pairs(properties) do
+		object[property] = value
+	end
+
+	object.Parent = parent
+
+	return object
+end
+
+local function AddCorner(parent, radius)
+	return New("UICorner", {
+		CornerRadius = UDim.new(0, radius)
+	}, parent)
+end
+
+local function AddStroke(parent, color, thickness, transparency)
+	return New("UIStroke", {
+		Color = color,
+		Thickness = thickness or 1,
+		Transparency = transparency or 0
+	}, parent)
+end
+
+local ScreenGui = New("ScreenGui", {
+	Name = "SnooKeySystem",
+	ResetOnSpawn = false,
+	IgnoreGuiInset = true,
+	ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+}, PlayerGui)
+
+local Background = New("Frame", {
+	Name = "Background",
+	Size = UDim2.fromScale(1, 1),
+	BackgroundColor3 = Color3.fromRGB(5, 5, 9),
+	BackgroundTransparency = 0.08,
+	BorderSizePixel = 0
+}, ScreenGui)
+
+local Main = New("Frame", {
+	Name = "Main",
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	Position = UDim2.fromScale(0.5, 0.5),
+	Size = UDim2.new(0.88, 0, 0, 300),
+	BackgroundColor3 = Color3.fromRGB(14, 14, 21),
+	BorderSizePixel = 0
+}, Background)
+
+AddCorner(Main, 18)
+AddStroke(Main, Color3.fromRGB(130, 75, 255), 1.5, 0.15)
+
+New("UISizeConstraint", {
+	MinSize = Vector2.new(280, 280),
+	MaxSize = Vector2.new(430, 320)
+}, Main)
+
+local Accent = New("Frame", {
+	Name = "Accent",
+	Size = UDim2.new(1, 0, 0, 4),
+	BackgroundColor3 = Color3.fromRGB(130, 75, 255),
+	BorderSizePixel = 0
+}, Main)
+
+AddCorner(Accent, 4)
+
+New("TextLabel", {
+	Name = "Title",
+	Size = UDim2.new(1, -40, 0, 35),
+	Position = UDim2.new(0, 20, 0, 22),
+	BackgroundTransparency = 1,
+	Text = "SNOO KEY SYSTEM",
+	TextColor3 = Color3.fromRGB(245, 245, 255),
+	Font = Enum.Font.GothamBold,
+	TextSize = 21,
+	TextXAlignment = Enum.TextXAlignment.Left
+}, Main)
+
+New("TextLabel", {
+	Name = "Subtitle",
+	Size = UDim2.new(1, -40, 0, 24),
+	Position = UDim2.new(0, 20, 0, 55),
+	BackgroundTransparency = 1,
+	Text = "Enter your access key to continue.",
+	TextColor3 = Color3.fromRGB(150, 150, 165),
+	Font = Enum.Font.Gotham,
+	TextSize = 12,
+	TextXAlignment = Enum.TextXAlignment.Left
+}, Main)
+
+New("TextLabel", {
+	Name = "KeyLabel",
+	Size = UDim2.new(1, -40, 0, 20),
+	Position = UDim2.new(0, 20, 0, 87),
+	BackgroundTransparency = 1,
+	Text = "ACCESS KEY",
+	TextColor3 = Color3.fromRGB(185, 185, 205),
+	Font = Enum.Font.GothamBold,
+	TextSize = 10,
+	TextXAlignment = Enum.TextXAlignment.Left
+}, Main)
+
+local KeyBox = New("TextBox", {
+	Name = "KeyBox",
+	Size = UDim2.new(1, -40, 0, 42),
+	Position = UDim2.new(0, 20, 0, 108),
+	BackgroundColor3 = Color3.fromRGB(23, 23, 32),
+	PlaceholderText = "Enter your key...",
+	PlaceholderColor3 = Color3.fromRGB(100, 100, 115),
+	Text = "",
+	ClearTextOnFocus = false,
+	TextColor3 = Color3.fromRGB(240, 240, 250),
+	Font = Enum.Font.Gotham,
+	TextSize = 13,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	BorderSizePixel = 0
+}, Main)
+
+AddCorner(KeyBox, 10)
+AddStroke(KeyBox, Color3.fromRGB(65, 65, 85), 1, 0.25)
+
+local Status = New("TextLabel", {
+	Name = "Status",
+	Size = UDim2.new(1, -40, 0, 22),
+	Position = UDim2.new(0, 20, 0, 154),
+	BackgroundTransparency = 1,
+	Text = "Waiting for key...",
+	TextColor3 = Color3.fromRGB(145, 145, 160),
+	Font = Enum.Font.Gotham,
+	TextSize = 11,
+	TextXAlignment = Enum.TextXAlignment.Left
+}, Main)
+
+local CopyButton = New("TextButton", {
+	Name = "CopyDiscord",
+	Size = UDim2.new(0.48, -10, 0, 40),
+	Position = UDim2.new(0, 20, 0, 190),
+	BackgroundColor3 = Color3.fromRGB(35, 35, 48),
+	Text = "COPY DISCORD",
+	TextColor3 = Color3.fromRGB(235, 235, 245),
+	Font = Enum.Font.GothamBold,
+	TextSize = 11,
+	AutoButtonColor = true,
+	BorderSizePixel = 0
+}, Main)
+
+AddCorner(CopyButton, 10)
+AddStroke(CopyButton, Color3.fromRGB(85, 85, 110), 1, 0.3)
+
+local VerifyButton = New("TextButton", {
+	Name = "Verify",
+	Size = UDim2.new(0.52, -30, 0, 40),
+	Position = UDim2.new(0.48, 10, 0, 190),
+	BackgroundColor3 = Color3.fromRGB(115, 65, 230),
+	Text = "VERIFY KEY",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	Font = Enum.Font.GothamBold,
+	TextSize = 11,
+	AutoButtonColor = true,
+	BorderSizePixel = 0
+}, Main)
+
+AddCorner(VerifyButton, 10)
+AddStroke(VerifyButton, Color3.fromRGB(165, 125, 255), 1, 0.25)
+
+New("TextLabel", {
+	Name = "Footer",
+	Size = UDim2.new(1, -40, 0, 25),
+	Position = UDim2.new(0, 20, 1, -35),
+	BackgroundTransparency = 1,
+	Text = "Keys are verified securely through the key server.",
+	TextColor3 = Color3.fromRGB(90, 90, 105),
+	Font = Enum.Font.Gotham,
+	TextSize = 9,
+	TextXAlignment = Enum.TextXAlignment.Center
+}, Main)
+
+local function SetStatus(message, success)
+	Status.Text = message
+
+	if success == true then
+		Status.TextColor3 = Color3.fromRGB(90, 235, 140)
+	elseif success == false then
+		Status.TextColor3 = Color3.fromRGB(255, 95, 105)
+	else
+		Status.TextColor3 = Color3.fromRGB(145, 145, 160)
+	end
+end
+
+CopyButton.MouseButton1Click:Connect(function()
+	if setclipboard then
+		local success = pcall(function()
+			setclipboard(DISCORD_LINK)
+		end)
+
+		if success then
+			SetStatus("Discord link copied.", true)
+
+			task.delay(2, function()
+				if ScreenGui.Parent then
+					SetStatus("Waiting for key...", nil)
+				end
+			end)
+
+			return
+		end
+	end
+
+	SetStatus("Clipboard is not supported here.", false)
+end)
+
+local function ValidateKey(key)
+	if not key or key == "" then
+		SetStatus("Enter a key first.", false)
+		return false
+	end
+
+	local payload = HttpService:JSONEncode({
+		key = key,
+		userId = tostring(Player.UserId),
+		username = Player.Name
+	})
+
+	local response
+
+	if Request then
+		local success, result = pcall(function()
+			return Request({
+				Url = ENDPOINT,
+				Method = "POST",
+				Headers = {
+					["Content-Type"] = "application/json"
+				},
+				Body = payload
+			})
+		end)
+
+		if not success or not result then
+			SetStatus("Could not contact key server.", false)
+			return false
+		end
+
+		response = result
+	else
+		local success, result = pcall(function()
+			return HttpService:RequestAsync({
+				Url = ENDPOINT,
+				Method = "POST",
+				Headers = {
+					["Content-Type"] = "application/json"
+				},
+				Body = payload
+			})
+		end)
+
+		if not success or not result then
+			SetStatus("HTTP request failed.", false)
+			return false
+		end
+
+		response = result
+	end
+
+	if type(response) ~= "table" or not response.Body then
+		SetStatus("Invalid server response.", false)
+		return false
+	end
+
+	local decodeSuccess, data = pcall(function()
+		return HttpService:JSONDecode(response.Body)
+	end)
+
+	if not decodeSuccess or type(data) ~= "table" then
+		SetStatus("Invalid API response.", false)
+		return false
+	end
+
+	if data.banned then
+		SetStatus(
+			"Account banned: " ..
+			tostring(data.reason or "No reason provided"),
+			false
+		)
+		return false
+	end
+
+	if data.blacklisted then
+		if data.reason == "KEY_ALREADY_LINKED" then
+			SetStatus("This key belongs to another player.", false)
+		else
+			SetStatus(
+				"Blacklisted: " ..
+				tostring(data.reason or "Unknown reason"),
+				false
+			)
+		end
+		return false
+	end
+
+	if not data.valid then
+		SetStatus(
+			"Invalid key: " ..
+			tostring(data.reason or "Rejected"),
+			false
+		)
+		return false
+	end
+
+	SetStatus("Key verified successfully.", true)
+
+	return true
+end
+
+local function ExecuteProtectedScript()
+	if ScreenGui and ScreenGui.Parent then
+		ScreenGui:Destroy()
+	end
+
+	local success, result = pcall(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/GUIZNXHub/SON-ALL-SCRIPT-TRASHSS/refs/heads/main/Weekly%20Code%20Sniper.txt"))()
+	end)
+
+	if not success then
+		warn("[SNOO] Protected script error:", result)
+	end
+end
+
+local Verifying = false
+
+VerifyButton.MouseButton1Click:Connect(function()
+	if Verifying then
+		return
+	end
+
+	local Key = KeyBox.Text
+
+	if Key == "" then
+		SetStatus("Enter a key first.", false)
+		return
+	end
+
+	Verifying = true
+
+	VerifyButton.Active = false
+	CopyButton.Active = false
+	VerifyButton.Text = "VERIFYING..."
+
+	SetStatus("Checking key with server...", nil)
+
+	local valid = ValidateKey(Key)
+
+	if valid then
+		VerifyButton.Text = "ACCESS GRANTED"
+
+		task.wait(0.7)
+
+		ExecuteProtectedScript()
+	else
+		VerifyButton.Text = "VERIFY KEY"
+
+		VerifyButton.Active = true
+		CopyButton.Active = true
+
+		Verifying = false
+	end
+end)
+
+KeyBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed then
+		VerifyButton:Activate()
+	end
+end)
+
+print("[SNOO] Key System loaded for " .. Player.Name)
